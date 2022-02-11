@@ -1,5 +1,6 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     for (var quote in appState.quoteList) {
       _quotes.add(QuoteCard(
         quote: quote.quoteText!,
-        author: quote.quoteAuthor,
+        author: quote.quoteAuthor!,
         color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
             .withOpacity(1.0),
       ));
@@ -164,30 +165,57 @@ class QuoteCard extends StatelessWidget {
                   blurRadius: 15)
             ]),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AutoSizeText(
-              quote,
-              style: GoogleFonts.workSans(
-                color: textColor,
-                fontSize: 24,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  AutoSizeText(
+                    quote,
+                    style: GoogleFonts.workSans(
+                      color: textColor,
+                      fontSize: 24,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  if (author != null)
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: AutoSizeText(
+                        '- $author',
+                        style: GoogleFonts.workSans(
+                          color: textColor,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
-            if (author != null) ...[
-              const SizedBox(
-                height: 8,
-              ),
+            if (author != null)
               Align(
-                alignment: Alignment.bottomRight,
-                child: AutoSizeText(
-                  '- $author',
-                  style: GoogleFonts.workSans(
-                    color: textColor,
-                    fontSize: 14,
-                  ),
+                alignment: Alignment.bottomCenter,
+                child: InkWell(
+                  onTap: () {
+                    FlutterClipboard.copy('$quote - $author').then((value) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        backgroundColor: color,
+                        duration: const Duration(milliseconds: 800),
+                        content: Text(
+                          'Quote Copied',
+                          style: GoogleFonts.workSans(color: textColor),
+                        ),
+                      ));
+                    });
+                  },
+                  child: const CircleAvatar(
+                      backgroundColor: Colors.white54,
+                      radius: 30,
+                      child: Icon(Icons.copy)),
                 ),
               ),
-            ]
           ],
         ));
   }
