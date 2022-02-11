@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
     for (var quote in appState.quoteList) {
       _quotes.add(QuoteCard(
         quote: quote.quoteText!,
+        author: quote.quoteAuthor,
         color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
             .withOpacity(1.0),
       ));
@@ -71,17 +72,32 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(
             height: MediaQuery.of(context).size.height * 0.80,
-            child: AppinioSwiper(
-              controller: controller,
-              cards: quotes,
-              onSwipe: _swipe,
-              padding: const EdgeInsets.only(
-                left: 25,
-                right: 25,
-                top: 50,
-                bottom: 40,
-              ),
-            ),
+            child: quotes.isNotEmpty
+                ? AppinioSwiper(
+                    controller: controller,
+                    cards: quotes,
+                    onSwipe: _swipe,
+                    padding: const EdgeInsets.only(
+                      left: 25,
+                      right: 25,
+                      top: 50,
+                      bottom: 40,
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.only(
+                      left: 25,
+                      right: 25,
+                      top: 50,
+                      bottom: 40,
+                    ),
+                    child: QuoteCard(
+                      quote: 'Loading quotes for you',
+                      color:
+                          Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
+                              .withOpacity(1.0),
+                    ),
+                  ),
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
@@ -119,9 +135,11 @@ class _HomePageState extends State<HomePage> {
 
 class QuoteCard extends StatelessWidget {
   final String quote;
+  final String? author;
   final Color color;
 
-  const QuoteCard({Key? key, required this.quote, required this.color})
+  const QuoteCard(
+      {Key? key, required this.quote, this.author, required this.color})
       : super(key: key);
 
   @override
@@ -141,14 +159,32 @@ class QuoteCard extends StatelessWidget {
                   spreadRadius: 1,
                   blurRadius: 15)
             ]),
-        child: Center(
-          child: AutoSizeText(
-            quote,
-            style: GoogleFonts.workSans(
-              color: textColor,
-              fontSize: 24,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AutoSizeText(
+              quote,
+              style: GoogleFonts.workSans(
+                color: textColor,
+                fontSize: 24,
+              ),
             ),
-          ),
+            if (author != null) ...[
+              const SizedBox(
+                height: 8,
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: AutoSizeText(
+                  '- $author',
+                  style: GoogleFonts.workSans(
+                    color: textColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ]
+          ],
         ));
   }
 }
