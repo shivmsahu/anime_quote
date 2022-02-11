@@ -1,10 +1,10 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
-
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:quotes_app/home/provider/app_state.dart';
+import 'dart:math' as math;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,58 +14,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int currentIndex = 0;
-  bool showUnswipe = false;
   final AppinioSwiperController controller = AppinioSwiperController();
+  late AppState appState;
 
   List<QuoteCard> quotes = [];
-  List<String> text = [
-    'assets/humaaans_2.jpg',
-    'assets/humaaans_3.jpg',
-    'assets/humaaans_6.jpg',
-    'assets/humaaans_5.jpg',
-    'assets/humaaans_8.jpg',
-    'assets/humaaans_10.jpg',
-    'assets/humaaans_11.jpg',
-    'assets/humaaans_3.jpg',
-    'assets/humaaans_6.jpg',
-    'assets/humaaans_5.jpg',
-    'assets/humaaans_8.jpg',
-    'assets/humaaans_10.jpg',
-    'assets/humaaans_11.jpg',
-    'assets/humaaans_3.jpg',
-    'assets/humaaans_6.jpg',
-    'assets/humaaans_5.jpg',
-    'assets/humaaans_8.jpg',
-    'assets/humaaans_10.jpg',
-    'assets/humaaans_11.jpg',
-    'assets/humaaans_3.jpg',
-    'assets/humaaans_6.jpg',
-    'assets/humaaans_5.jpg',
-    'assets/humaaans_8.jpg',
-    'assets/humaaans_10.jpg',
-    'assets/humaaans_11.jpg',
-    'assets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpgassets/humaaans_4.jpg',
-    'assets/humaaans_12.jpg',
-    'assets/humaaans_1.jpg',
-  ];
 
   @override
   void initState() {
+    appState = Provider.of<AppState>(context, listen: false);
     _loadCards();
     super.initState();
   }
 
   void _swipe(int index) {
-    setState(() {
-      showUnswipe = true;
-    });
-    currentIndex++;
-    print(currentIndex);
+    appState.changeUnswipeVisability(show: true);
+    appState.currentIndex++;
+    print(appState.currentIndex);
   }
 
   void _loadCards() {
-    for (String text in text) {
+    for (String text in appState.quoteList) {
       quotes.add(QuoteCard(
         quote: text,
         color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
@@ -76,6 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
       body: Column(
@@ -99,7 +68,7 @@ class _HomePageState extends State<HomePage> {
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
-            child: showUnswipe
+            child: appState.showUnswipe
                 ? GestureDetector(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -119,10 +88,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onTap: () {
                       controller.unswipe();
-                      currentIndex--;
-                      setState(() {
-                        showUnswipe = false;
-                      });
+                      appState.currentIndex--;
+                      appState.changeUnswipeVisability(show: false);
                     },
                   )
                 : const SizedBox.shrink(),
