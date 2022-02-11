@@ -27,10 +27,12 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  Future<void> quoteApi() async {
+  Future<void> quoteApi({bool loadCards = true}) async {
     final res = await HomeController.getRandomQuotes();
     appState.quoteList = res.data ?? [];
-    _loadCards();
+    if (loadCards) {
+      _loadCards();
+    }
   }
 
   void _swipe(int index) {
@@ -40,8 +42,11 @@ class _HomePageState extends State<HomePage> {
     print('hello');
     print(quotes.length);
 
+    if (quotes.length == 3) {
+      quoteApi(loadCards: false);
+    }
     if (quotes.isEmpty) {
-      quoteApi();
+      _loadCards();
     }
   }
 
@@ -55,9 +60,8 @@ class _HomePageState extends State<HomePage> {
             .withOpacity(1.0),
       ));
     }
-    quotes.addAll(_quotes);
+    quotes = _quotes;
     appState.notify();
-    // setState(() {});
   }
 
   @override
