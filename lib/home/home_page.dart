@@ -8,6 +8,8 @@ import 'package:quotes_app/home/controller/home_controller.dart';
 import 'package:quotes_app/home/provider/app_state.dart';
 import 'dart:math' as math;
 
+import 'package:share_plus/share_plus.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -39,9 +41,6 @@ class _HomePageState extends State<HomePage> {
   void _swipe(int index) {
     appState.changeUnswipeVisability(show: true);
     appState.currentIndex++;
-    print(appState.currentIndex);
-    print('hello');
-    print(quotes.length);
 
     if (quotes.length == 3) {
       quoteApi(loadCards: false);
@@ -151,6 +150,7 @@ class QuoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Color textColor =
         color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    String copyText = '$quote \n- $author';
     return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -195,26 +195,40 @@ class QuoteCard extends StatelessWidget {
               ),
             ),
             if (author != null)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: InkWell(
-                  onTap: () {
-                    FlutterClipboard.copy('$quote - $author').then((value) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: color,
-                        duration: const Duration(milliseconds: 800),
-                        content: Text(
-                          'Quote Copied',
-                          style: GoogleFonts.workSans(color: textColor),
-                        ),
-                      ));
-                    });
-                  },
-                  child: const CircleAvatar(
-                      backgroundColor: Colors.white54,
-                      radius: 30,
-                      child: Icon(Icons.copy)),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      FlutterClipboard.copy(copyText).then((value) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          backgroundColor: color,
+                          duration: const Duration(milliseconds: 800),
+                          content: Text(
+                            'Quote Copied',
+                            style: GoogleFonts.workSans(color: textColor),
+                          ),
+                        ));
+                      });
+                    },
+                    child: const CircleAvatar(
+                        backgroundColor: Colors.white54,
+                        radius: 30,
+                        child: Icon(Icons.copy)),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Share.share(copyText);
+                    },
+                    child: const CircleAvatar(
+                        backgroundColor: Colors.white54,
+                        radius: 30,
+                        child: Icon(Icons.share_rounded)),
+                  ),
+                ],
               ),
           ],
         ));
