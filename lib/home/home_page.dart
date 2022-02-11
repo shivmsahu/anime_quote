@@ -3,6 +3,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:quotes_app/home/controller/home_controller.dart';
 import 'package:quotes_app/home/provider/app_state.dart';
 import 'dart:math' as math;
 
@@ -22,24 +23,40 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     appState = Provider.of<AppState>(context, listen: false);
-    _loadCards();
+    quoteApi();
     super.initState();
+  }
+
+  Future<void> quoteApi() async {
+    final res = await HomeController.getRandomQuotes();
+    appState.quoteList = res.data ?? [];
+    _loadCards();
   }
 
   void _swipe(int index) {
     appState.changeUnswipeVisability(show: true);
     appState.currentIndex++;
     print(appState.currentIndex);
+    print('hello');
+    print(quotes.length);
+
+    if (quotes.isEmpty) {
+      quoteApi();
+    }
   }
 
   void _loadCards() {
-    for (String text in appState.quoteList) {
-      quotes.add(QuoteCard(
-        quote: text,
+    List<QuoteCard> _quotes = [];
+    for (var quote in appState.quoteList) {
+      _quotes.add(QuoteCard(
+        quote: quote.quoteText!,
         color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
             .withOpacity(1.0),
       ));
     }
+    quotes.addAll(_quotes);
+    appState.notify();
+    // setState(() {});
   }
 
   @override
