@@ -1,14 +1,11 @@
 import 'package:appinio_swiper/appinio_swiper.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:quotes_app/home/component/quote_card.dart';
 import 'package:quotes_app/home/controller/home_controller.dart';
 import 'package:quotes_app/home/provider/app_state.dart';
 import 'dart:math' as math;
-
-import 'package:share_plus/share_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,7 +29,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> quoteApi({bool loadCards = true}) async {
     final res = await HomeController.getRandomQuotes();
-    appState.quoteList = res.data ?? [];
+    appState.quoteList = res;
     if (loadCards) {
       _loadCards();
     }
@@ -54,8 +51,8 @@ class _HomePageState extends State<HomePage> {
     List<QuoteCard> _quotes = [];
     for (var quote in appState.quoteList) {
       _quotes.add(QuoteCard(
-        quote: quote.quoteText!,
-        author: quote.quoteAuthor!,
+        quote: quote.quote!,
+        author: ('${quote.character}\n(${quote.anime})'),
         color: Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
             .withOpacity(1.0),
       ));
@@ -134,103 +131,5 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
-  }
-}
-
-class QuoteCard extends StatelessWidget {
-  final String quote;
-  final String? author;
-  final Color color;
-
-  const QuoteCard(
-      {Key? key, required this.quote, this.author, required this.color})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    Color textColor =
-        color.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-    String copyText = '$quote \n- $author';
-    return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: color,
-            boxShadow: const [
-              BoxShadow(
-                  color: Colors.black,
-                  offset: Offset(4, 4),
-                  spreadRadius: 1,
-                  blurRadius: 15)
-            ]),
-        child: Column(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AutoSizeText(
-                    quote,
-                    style: GoogleFonts.workSans(
-                      color: textColor,
-                      fontSize: 24,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (author != null)
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: AutoSizeText(
-                        '- $author',
-                        style: GoogleFonts.workSans(
-                          color: textColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (author != null)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      FlutterClipboard.copy(copyText).then((value) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: color,
-                          duration: const Duration(milliseconds: 800),
-                          content: Text(
-                            'Quote Copied',
-                            style: GoogleFonts.workSans(color: textColor),
-                          ),
-                        ));
-                      });
-                    },
-                    child: const CircleAvatar(
-                        backgroundColor: Colors.white54,
-                        radius: 30,
-                        child: Icon(Icons.copy)),
-                  ),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Share.share(copyText);
-                    },
-                    child: const CircleAvatar(
-                        backgroundColor: Colors.white54,
-                        radius: 30,
-                        child: Icon(Icons.share_rounded)),
-                  ),
-                ],
-              ),
-          ],
-        ));
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quotes_app/home/model/RandomQuoteList.dart';
+import 'package:quotes_app/home/model/random_anime_quote_list.dart';
 
 class AppState with ChangeNotifier {
   int currentIndex = 0;
@@ -8,7 +8,7 @@ class AppState with ChangeNotifier {
     showUnswipe = show;
     notifyListeners();
   }
-  List<QuoteData> quoteList = [];
+  List<RandomAnimeQuoteList> quoteList = [];
   void notify(){
     notifyListeners();
   }
